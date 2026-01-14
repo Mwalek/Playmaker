@@ -4,7 +4,8 @@
   "description": "Run Playwright planner agent on PRs using Claude Agent SDK",
   "type": "module",
   "bin": {
-    "playmaker": "./bin/playmaker.js"
+    "playmaker": "./bin/playmaker.js",
+    "playmaker-generate": "./bin/playmaker-generate.js"
   },
   "scripts": {
     "plan": "tsx src/planner.ts",
