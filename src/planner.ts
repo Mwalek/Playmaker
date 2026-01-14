@@ -28,7 +28,7 @@ function getPRInfo(): PRInfo | null {
   const eventPath = process.env.GITHUB_EVENT_PATH;
 
   if (!eventPath) {
-    console.log("GITHUB_EVENT_PATH not found. Using mock data.");
+    console.log("GITHUB_EVENT_PATH not found.");
     return null;
   }
 
@@ -36,7 +36,7 @@ function getPRInfo(): PRInfo | null {
   const pr = event.pull_request;
 
   if (!pr) {
-    console.log("No pull_request in event payload. Using mock data.");
+    console.log("No pull_request in event payload.");
     return null;
   }
 
@@ -172,17 +172,6 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
         console.log((textContent as { text: string }).text);
       }
     }
-  }
-
-  // Debug: List what's actually in specs/ directory
-  console.log("\n--- DEBUG: Checking specs/ directory ---");
-  console.log(`Current working directory: ${process.cwd()}`);
-
-  if (existsSync("specs")) {
-    const files = readdirSync("specs");
-    console.log(`Files in specs/: ${files.join(", ") || "(empty)"}`);
-  } else {
-    console.log("specs/ directory does not exist!");
   }
 
   console.log("\nTest plan created in specs/ directory");
