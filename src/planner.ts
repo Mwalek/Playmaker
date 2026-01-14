@@ -21,66 +21,66 @@ function ensureAgents(): void {
 }
 
 /**
- * Get PR information from GitHub API.
- * Uses GITHUB_TOKEN and environment variables available in GitHub Actions.
+ * Get PR information from GitHub Actions event payload.
+ * No API calls needed - GitHub provides full PR data in the event file.
  */
-async function getPRInfo(): Promise<PRInfo | null> {
-  const token = process.env.GITHUB_TOKEN;
-  const repository = process.env.GITHUB_REPOSITORY;
+function getPRInfo(): PRInfo | null {
   const eventPath = process.env.GITHUB_EVENT_PATH;
 
-  if (!token || !repository || !eventPath) {
-    console.log("GitHub environment variables not found. Using mock data.");
+  if (!eventPath) {
+    console.log("GITHUB_EVENT_PATH not found. Using mock data.");
     return null;
   }
 
-  // Read PR number from event payload
   const event = JSON.parse(readFileSync(eventPath, "utf-8"));
-  const prNumber = event.pull_request?.number;
+  const pr = event.pull_request;
 
-  if (!prNumber) {
-    console.log("No PR number found in event payload. Using mock data.");
+  if (!pr) {
+    console.log("No pull_request in event payload. Using mock data.");
     return null;
   }
 
-  const [owner, repo] = repository.split("/");
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github.v3+json",
-    "User-Agent": "Playmaker",
-  };
+  console.log(`Reading PR #${pr.number}: ${pr.title}`);
 
-  console.log(`Fetching PR #${prNumber} from ${repository}...`);
-
-  // Fetch PR details, files, and diff in parallel
-  const [prResponse, filesResponse, diffResponse] = await Promise.all([
-    fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}`, { headers }),
-    fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/files`, { headers }),
-    fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}`, {
-      headers: { ...headers, Accept: "application/vnd.github.v3.diff" },
-    }),
-  ]);
-
-  if (!prResponse.ok || !filesResponse.ok || !diffResponse.ok) {
-    console.log("Failed to fetch PR info from GitHub API. Using mock data.");
-    return null;
+  // Get diff using git (base and head SHAs are in the event)
+  let diff = "";
+  try {
+    const baseSha = pr.base.sha;
+    const headSha = pr.head.sha;
+    diff = execSync(`git diff ${baseSha}...${headSha}`, { encoding: "utf-8", maxBuffer: 10 * 1024 * 1024 });
+  } catch (error) {
+    console.log("Could not get diff via git, continuing without it.");
   }
 
-  const pr = (await prResponse.json()) as { number: number; title: string; body: string | null };
-  const files = (await filesResponse.json()) as Array<{
-    filename: string;
-    status: string;
-    additions: number;
-    deletions: number;
-  }>;
-  const diff = await diffResponse.text();
+  // Get changed files from git
+  let files: PRInfo["files"] = [];
+  try {
+    const baseSha = pr.base.sha;
+    const headSha = pr.head.sha;
+    const numstat = execSync(`git diff --numstat ${baseSha}...${headSha}`, { encoding: "utf-8" });
+    files = numstat
+      .trim()
+      .split("\n")
+      .filter((line) => line)
+      .map((line) => {
+        const [additions, deletions, filename] = line.split("\t");
+        return {
+          filename,
+          status: "modified",
+          additions: parseInt(additions) || 0,
+          deletions: parseInt(deletions) || 0,
+        };
+      });
+  } catch (error) {
+    console.log("Could not get file stats via git, continuing without them.");
+  }
 
   return {
     number: pr.number,
     title: pr.title,
     body: pr.body,
     files,
-    diff: diff.slice(0, 50000), // Limit diff size to avoid token limits
+    diff: diff.slice(0, 50000), // Limit diff size
   };
 }
 
@@ -109,8 +109,8 @@ ${prInfo.diff}
 /**
  * Get change summary - from GitHub PR or mock data.
  */
-async function getChangeSummary(): Promise<string> {
-  const prInfo = await getPRInfo();
+function getChangeSummary(): string {
+  const prInfo = getPRInfo();
 
   if (prInfo) {
     return formatPRSummary(prInfo);
@@ -123,7 +123,7 @@ async function getChangeSummary(): Promise<string> {
 async function createTestPlan(): Promise<void> {
   ensureAgents();
 
-  const changeSummary = await getChangeSummary();
+  const changeSummary = getChangeSummary();
 
   console.log("Change summary:");
   console.log(changeSummary.slice(0, 500) + (changeSummary.length > 500 ? "..." : ""));
