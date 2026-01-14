@@ -10,16 +10,32 @@ const PLANNER_SYSTEM = fs.readFileSync(
 // Extract just the system prompt (after the frontmatter)
 const systemPrompt = PLANNER_SYSTEM.split("---").slice(2).join("---").trim();
 
-async function createTestPlan(url: string): Promise<void> {
-  console.log(`Creating test plan for: ${url}`);
+/**
+ * Mock GitHub summary provider.
+ * In the future, this will use GitHub MCP to get actual PR changes.
+ */
+function getChangeSummary(): string {
+  return "A search bar has been added to the homepage that allows users to search for products.";
+}
+
+async function createTestPlan(targetUrl: string): Promise<void> {
+  const changeSummary = getChangeSummary();
+
+  console.log(`Target URL: ${targetUrl}`);
+  console.log(`Change summary: ${changeSummary}`);
+  console.log("Creating test plan...\n");
 
   const q = query({
-    prompt: `Create a comprehensive test plan for: ${url}
+    prompt: `Create a test plan for the following change:
+
+**What changed:** ${changeSummary}
+
+**Target URL:** ${targetUrl}
 
 Follow the planner instructions to:
-1. Use planner_setup_page to set up the browser
-2. Navigate and explore the application
-3. Design test scenarios
+1. Use planner_setup_page to set up the browser with the target URL
+2. Navigate to the application and locate the changed feature
+3. Design test scenarios specifically for the change described above
 4. Save the plan using planner_save_plan`,
     options: {
       maxTurns: 50,
@@ -76,11 +92,11 @@ Follow the planner instructions to:
 }
 
 // CLI
-const url = process.argv[2];
-if (!url) {
-  console.error("Usage: npm run plan <url>");
+const targetUrl = process.argv[2];
+if (!targetUrl) {
+  console.error("Usage: npm run plan <target-url>");
   console.error("Example: npm run plan https://example.com");
   process.exit(1);
 }
 
-createTestPlan(url).catch(console.error);
+createTestPlan(targetUrl).catch(console.error);
