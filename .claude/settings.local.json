@@ -9,7 +9,9 @@
       "Bash(source:*)",
       "Bash(pip install:*)",
       "Bash(python3:*)",
-      "Bash(ANTHROPIC_API_KEY= python3 -c \"\nfrom playmaker import JudgeAgent\njudge = JudgeAgent\\(\\)\n\")"
+      "Bash(ANTHROPIC_API_KEY= python3 -c \"\nfrom playmaker import JudgeAgent\njudge = JudgeAgent\\(\\)\n\")",
+      "Bash(playmaker --help:*)",
+      "Bash(playmaker plan --help:*)"
     ]
   }
 }
