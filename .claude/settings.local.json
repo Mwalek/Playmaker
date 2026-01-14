@@ -17,7 +17,9 @@
       "mcp__github__get_file_contents",
       "Bash(npm install:*)",
       "Bash(gh run view:*)",
-      "Bash(gh repo view:*)"
+      "Bash(gh repo view:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run rerun:*)"
     ]
   }
 }

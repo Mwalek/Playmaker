@@ -29,9 +29,11 @@ async function createTestPlan(): Promise<void> {
   console.log("Creating test plan...\n");
 
   const q = query({
-    prompt: `Use the playwright-test-planner agent to create a test plan.
+    prompt: `Use the playwright-test-planner agent to create a test plan and SAVE it to specs/ directory.
 
-**What changed:** ${changeSummary}`,
+**What changed:** ${changeSummary}
+
+IMPORTANT: The plan must be saved to a markdown file in the specs/ directory using the Write tool or planner_save_plan tool.`,
     options: {
       maxTurns: 50,
       cwd: process.cwd(),
