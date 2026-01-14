@@ -107,23 +107,30 @@ ${prInfo.diff}
 }
 
 /**
- * Get change summary - from GitHub PR or mock data.
+ * Get change summary from GitHub PR.
+ * Returns null if not running in a PR context.
  */
-function getChangeSummary(): string {
-  const prInfo = getPRInfo();
-
-  if (prInfo) {
-    return formatPRSummary(prInfo);
+function getChangeSummary(): string | null {
+  // Allow mock data only if explicitly enabled for testing
+  if (process.env.PLAYMAKER_MOCK) {
+    console.log("Using mock data (PLAYMAKER_MOCK=true)");
+    return "A search bar has been added to the homepage that allows users to search for products.";
   }
 
-  // Fallback mock data for local testing
-  return "A search bar has been added to the homepage that allows users to search for products.";
+  const prInfo = getPRInfo();
+  return prInfo ? formatPRSummary(prInfo) : null;
 }
 
 async function createTestPlan(): Promise<void> {
-  ensureAgents();
-
   const changeSummary = getChangeSummary();
+
+  if (!changeSummary) {
+    console.log("No PR data available. Playmaker only runs on pull_request events.");
+    console.log("To test locally, set PLAYMAKER_MOCK=true");
+    process.exit(0);
+  }
+
+  ensureAgents();
 
   console.log("Change summary:");
   console.log(changeSummary.slice(0, 500) + (changeSummary.length > 500 ? "..." : ""));

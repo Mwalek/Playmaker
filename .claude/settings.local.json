@@ -20,7 +20,9 @@
       "Bash(gh repo view:*)",
       "Bash(gh run list:*)",
       "Bash(gh run rerun:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(gh run download:*)",
+      "Bash(head:*)"
     ]
   }
 }
