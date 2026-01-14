@@ -15,7 +15,9 @@
       "WebFetch(domain:www.anthropic.com)",
       "Bash(python playmaker/sdk_planner.py:*)",
       "mcp__github__get_file_contents",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh repo view:*)"
     ]
   }
 }

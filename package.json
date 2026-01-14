@@ -3,16 +3,19 @@
   "version": "0.1.0",
   "description": "Run Playwright planner agent on PRs using Claude Agent SDK",
   "type": "module",
+  "bin": {
+    "playmaker": "./bin/playmaker.js"
+  },
   "scripts": {
     "plan": "tsx src/planner.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.14",
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
+    "tsx": "^4.20.6"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }
