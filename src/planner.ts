@@ -150,7 +150,7 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
       maxTurns: 50,
       cwd: process.cwd(),
       model: "sonnet",
-      maxBudgetUsd: parseFloat(process.env.PLAYMAKER_MAX_BUDGET || "5.0"),
+      maxBudgetUsd: parseFloat(process.env.PLAYMAKER_MAX_BUDGET || "1.0"),
       allowedTools: [
         "Task",
         "Bash",
