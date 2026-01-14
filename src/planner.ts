@@ -1,14 +1,4 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import * as fs from "fs";
-import * as path from "path";
-
-const PLANNER_SYSTEM = fs.readFileSync(
-  path.join(process.cwd(), ".claude/agents/playwright-test-planner.md"),
-  "utf-8"
-);
-
-// Extract just the system prompt (after the frontmatter)
-const systemPrompt = PLANNER_SYSTEM.split("---").slice(2).join("---").trim();
 
 /**
  * Mock GitHub summary provider.
@@ -26,54 +16,15 @@ async function createTestPlan(targetUrl: string): Promise<void> {
   console.log("Creating test plan...\n");
 
   const q = query({
-    prompt: `Create a test plan for the following change:
+    prompt: `Use the playwright-test-planner agent to create a test plan.
 
 **What changed:** ${changeSummary}
 
-**Target URL:** ${targetUrl}
-
-Follow the planner instructions to:
-1. Use planner_setup_page to set up the browser with the target URL
-2. Navigate to the application and locate the changed feature
-3. Design test scenarios specifically for the change described above
-4. Save the plan using planner_save_plan`,
+**Target URL:** ${targetUrl}`,
     options: {
       maxTurns: 50,
       cwd: process.cwd(),
       model: "sonnet",
-      systemPrompt,
-      allowedTools: [
-        "Glob",
-        "Grep",
-        "Read",
-        "LS",
-        "Write",
-        "mcp__playwright-test__browser_click",
-        "mcp__playwright-test__browser_close",
-        "mcp__playwright-test__browser_console_messages",
-        "mcp__playwright-test__browser_drag",
-        "mcp__playwright-test__browser_evaluate",
-        "mcp__playwright-test__browser_file_upload",
-        "mcp__playwright-test__browser_handle_dialog",
-        "mcp__playwright-test__browser_hover",
-        "mcp__playwright-test__browser_navigate",
-        "mcp__playwright-test__browser_navigate_back",
-        "mcp__playwright-test__browser_network_requests",
-        "mcp__playwright-test__browser_press_key",
-        "mcp__playwright-test__browser_select_option",
-        "mcp__playwright-test__browser_snapshot",
-        "mcp__playwright-test__browser_take_screenshot",
-        "mcp__playwright-test__browser_type",
-        "mcp__playwright-test__browser_wait_for",
-        "mcp__playwright-test__planner_setup_page",
-        "mcp__playwright-test__planner_save_plan",
-      ],
-      mcpServers: {
-        "playwright-test": {
-          command: "npx",
-          args: ["playwright", "run-test-mcp-server"],
-        },
-      },
     },
   });
 
