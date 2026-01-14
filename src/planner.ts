@@ -1,4 +1,16 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
+import { execSync } from "child_process";
+import { existsSync } from "fs";
+
+/**
+ * Initialize Playwright agents if they don't exist.
+ */
+function ensureAgents(): void {
+  if (!existsSync(".claude/agents/playwright-test-planner.md")) {
+    console.log("Initializing Playwright agents...");
+    execSync("npx playwright init-agents --loop=claude", { stdio: "inherit" });
+  }
+}
 
 /**
  * Mock GitHub summary provider.
@@ -9,6 +21,8 @@ function getChangeSummary(): string {
 }
 
 async function createTestPlan(): Promise<void> {
+  ensureAgents();
+
   const changeSummary = getChangeSummary();
 
   console.log(`Change summary: ${changeSummary}`);
