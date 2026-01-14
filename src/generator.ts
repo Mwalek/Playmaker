@@ -6,10 +6,22 @@ import { existsSync, readdirSync, readFileSync } from "fs";
  * Initialize Playwright agents if they don't exist.
  */
 function ensureAgents(): void {
-  if (!existsSync(".claude/agents/playwright-test-generator.md")) {
+  const generatorExists = existsSync(".claude/agents/playwright-test-generator.md");
+  const plannerExists = existsSync(".claude/agents/playwright-test-planner.md");
+
+  if (!generatorExists || !plannerExists) {
     console.log("Initializing Playwright agents...");
     execSync("npx playwright init-agents --loop=claude", { stdio: "inherit" });
   }
+
+  // Verify generator agent exists after initialization
+  if (!existsSync(".claude/agents/playwright-test-generator.md")) {
+    console.error("ERROR: playwright-test-generator agent not found!");
+    console.error("Make sure Playwright is installed and init-agents completed successfully.");
+    process.exit(1);
+  }
+
+  console.log("✓ playwright-test-generator agent ready");
 }
 
 /**
@@ -51,17 +63,20 @@ async function generateTest(): Promise<void> {
   let totalCost = 0;
 
   const q = query({
-    prompt: `Use the playwright-test-generator agent to generate EXACTLY ONE test.
+    prompt: `IMPORTANT: You MUST use the playwright-test-generator agent (NOT the planner agent).
+
+Call the Task tool with subagent_type="playwright-test-generator" to generate EXACTLY ONE test.
 
 **Test Plan:**
 ${testPlan}
 
-CRITICAL INSTRUCTIONS:
+CRITICAL INSTRUCTIONS for the generator agent:
 1. Generate ONLY ONE test for the HIGHEST PRIORITY test case in the plan
 2. Do NOT generate multiple tests
 3. Do NOT generate tests for other test cases
-4. Save the generated test file to tests/ directory using the Write tool
-5. Follow the test plan's structure and expectations exactly
+4. Do NOT create a new test plan - the plan already exists above
+5. Save the generated test file to tests/ directory using the Write tool
+6. Follow the test plan's structure and expectations exactly
 
 Generate the single most important test and stop.`,
     options: {
@@ -99,7 +114,18 @@ Generate the single most important test and stop.`,
       break;
     }
 
+    // Log agent invocations to verify correct agent is used
     if (message.type === "assistant" && message.message) {
+      for (const block of message.message.content || []) {
+        if ((block as any).type === "tool_use" && (block as any).name === "Task") {
+          const subagentType = (block as any).input?.subagent_type;
+          console.log(`\n→ Invoking agent: ${subagentType}`);
+          if (subagentType === "playwright-test-planner") {
+            console.error("⚠️  WARNING: Using planner agent instead of generator!");
+          }
+        }
+      }
+
       const textContent = message.message.content.find(
         (c: unknown) => (c as { type: string }).type === "text"
       );
