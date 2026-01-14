@@ -11,7 +11,9 @@
       "Bash(python3:*)",
       "Bash(ANTHROPIC_API_KEY= python3 -c \"\nfrom playmaker import JudgeAgent\njudge = JudgeAgent\\(\\)\n\")",
       "Bash(playmaker --help:*)",
-      "Bash(playmaker plan --help:*)"
+      "Bash(playmaker plan --help:*)",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(python playmaker/sdk_planner.py:*)"
     ]
   }
 }
