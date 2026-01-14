@@ -149,7 +149,7 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
     options: {
       maxTurns: 50,
       cwd: process.cwd(),
-      model: "sonnet",
+      model: "haiku",
       maxBudgetUsd: parseFloat(process.env.PLAYMAKER_MAX_BUDGET || "1.0"),
       allowedTools: [
         "Task",
