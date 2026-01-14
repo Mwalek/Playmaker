@@ -5,18 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "playmaker"
 version = "0.1.0"
-description = "Playwright test agent orchestrator with AI-powered Judge"
+description = "Create Playwright test plans using Claude Agent SDK + Playwright MCP"
 requires-python = ">=3.10"
 dependencies = [
     "claude-agent-sdk>=0.1.0",
-    "anthropic>=0.40.0",
-    "aiohttp>=3.9.0",
-    "python-dotenv>=1.0.0",
 ]
 
-[project.scripts]
-playmaker = "main:main"
-
 [tool.setuptools]
-py-modules = ["main"]
 packages = ["playmaker"]

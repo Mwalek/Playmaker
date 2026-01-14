@@ -1,14 +1,6 @@
-"""Playmaker - Playwright test agent orchestrator with Judge agent."""
+"""Playmaker - Create Playwright test plans using Claude Agent SDK."""
 
-from .judge import JudgeAgent, JudgeVerdict, MissingAPIKeyError
-from .orchestrator import PlaymakerOrchestrator
-from .planner import PlannerAgent
+from .sdk_planner import create_test_plan
 
-__all__ = [
-    "JudgeAgent",
-    "JudgeVerdict",
-    "MissingAPIKeyError",
-    "PlannerAgent",
-    "PlaymakerOrchestrator",
-]
+__all__ = ["create_test_plan"]
 __version__ = "0.1.0"

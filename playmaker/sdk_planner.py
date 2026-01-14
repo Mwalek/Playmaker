@@ -1,15 +1,18 @@
-"""MVP: Create test plan using Claude Agent SDK + Playwright MCP."""
-
-import asyncio
-import sys
-from pathlib import Path
+"""Create Playwright test plans using Claude Agent SDK + Playwright MCP."""
 
 from claude_agent_sdk import query, ClaudeAgentOptions
 
 
 async def create_test_plan(url: str, output_file: str = None) -> str:
-    """Create a test plan for a given URL using Playwright to browse it."""
+    """Create a test plan for a given URL using Playwright to browse it.
 
+    Args:
+        url: The URL to create a test plan for
+        output_file: Optional path to save the test plan
+
+    Returns:
+        Markdown test plan with Playwright test code
+    """
     output_instruction = ""
     if output_file:
         output_instruction = f"Save the test plan to {output_file}"
@@ -41,25 +44,3 @@ Output the test plan in markdown format.""",
             result = message.result
 
     return result
-
-
-async def main():
-    # Simple CLI: playmaker-plan <url> [output_file]
-    if len(sys.argv) < 2:
-        print("Usage: python -m playmaker.sdk_planner <url> [output_file]")
-        print("Example: python -m playmaker.sdk_planner https://example.com specs/plan.md")
-        sys.exit(1)
-
-    url = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else None
-
-    print(f"🎯 Creating test plan for: {url}")
-    if output_file:
-        print(f"📄 Output: {output_file}")
-
-    plan = await create_test_plan(url, output_file)
-    print("\n" + plan)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
