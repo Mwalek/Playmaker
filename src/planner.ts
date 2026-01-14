@@ -1,6 +1,6 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { execSync } from "child_process";
-import { existsSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 
 /**
  * Initialize Playwright agents if they don't exist.
@@ -50,6 +50,17 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
         console.log(textContent.text);
       }
     }
+  }
+
+  // Debug: List what's actually in specs/ directory
+  console.log("\n--- DEBUG: Checking specs/ directory ---");
+  console.log(`Current working directory: ${process.cwd()}`);
+
+  if (existsSync("specs")) {
+    const files = readdirSync("specs");
+    console.log(`Files in specs/: ${files.join(", ") || "(empty)"}`);
+  } else {
+    console.log("specs/ directory does not exist!");
   }
 
   console.log("\nTest plan created in specs/ directory");
