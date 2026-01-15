@@ -120,18 +120,7 @@ Generate the single most important test and stop.`,
       break;
     }
 
-    // Log agent invocations to verify correct agent is used
     if (message.type === "assistant" && message.message) {
-      for (const block of message.message.content || []) {
-        if ((block as any).type === "tool_use" && (block as any).name === "Task") {
-          const subagentType = (block as any).input?.subagent_type;
-          console.log(`\n→ Invoking agent: ${subagentType}`);
-          if (subagentType === "playwright-test-planner") {
-            console.error("⚠️  WARNING: Using planner agent instead of generator!");
-          }
-        }
-      }
-
       const textContent = message.message.content.find(
         (c: unknown) => (c as { type: string }).type === "text"
       );
