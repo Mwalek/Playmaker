@@ -141,7 +141,13 @@ Generate the single most important test and stop.`,
     }
   }
 
-  console.log("\nTest generated in tests/ directory");
+  // Verify test file was created
+  if (existsSync("e2e") && readdirSync("e2e").some(f => f.endsWith(".spec.ts"))) {
+    console.log("\n✓ Test generated in e2e/ directory");
+  } else {
+    console.log("\n⚠️  No test file found in e2e/ directory");
+  }
+
   console.log(`💰 Total cost: $${totalCost.toFixed(4)}`);
 }
 
