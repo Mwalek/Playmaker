@@ -136,8 +136,9 @@ async function createTestPlan(): Promise<void> {
   console.log(changeSummary.slice(0, 500) + (changeSummary.length > 500 ? "..." : ""));
   console.log("\nCreating test plan...\n");
 
-  // Track total cost
+  // Track total cost with message ID deduplication
   let totalCost = 0;
+  const processedMessageIds = new Set<string>();
 
   const q = query({
     prompt: `Use the playwright-test-planner agent to create a test plan and SAVE it to specs/ directory.
@@ -168,9 +169,34 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
   });
 
   for await (const message of q) {
-    // Track costs from system messages
-    if (message.type === "system" && "cost" in message && typeof message.cost === "number") {
-      totalCost += message.cost;
+    // Track costs from assistant messages with deduplication
+    // Per docs: assistant messages contain usage data, and messages with same ID share identical usage
+    if (message.type === "assistant" && message.message) {
+      const assistantMsg = message.message as any;
+      const messageId = assistantMsg.id;
+      const usage = assistantMsg.usage;
+
+      if (messageId && usage && !processedMessageIds.has(messageId)) {
+        processedMessageIds.add(messageId);
+
+        // Calculate cost from usage tokens
+        const inputCost = (usage.input_tokens || 0) * 0.00003;
+        const outputCost = (usage.output_tokens || 0) * 0.00015;
+        const cacheReadCost = (usage.cache_read_input_tokens || 0) * 0.0000075;
+        const stepCost = inputCost + outputCost + cacheReadCost;
+
+        totalCost += stepCost;
+
+        console.log(`[DEBUG] Message ${messageId}: input=${usage.input_tokens}, output=${usage.output_tokens}, cost=$${stepCost.toFixed(4)}`);
+      }
+
+      // Display text content
+      const textContent = assistantMsg.content.find(
+        (c: unknown) => (c as { type: string }).type === "text"
+      );
+      if (textContent && "text" in (textContent as { text?: string })) {
+        console.log((textContent as { text: string }).text);
+      }
     }
 
     // Handle budget exceeded error
@@ -180,19 +206,10 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
       console.error("\n⚠️  Budget limit exceeded");
       break;
     }
-
-    if (message.type === "assistant" && message.message) {
-      const textContent = message.message.content.find(
-        (c: unknown) => (c as { type: string }).type === "text"
-      );
-      if (textContent && "text" in (textContent as { text?: string })) {
-        console.log((textContent as { text: string }).text);
-      }
-    }
   }
 
   console.log("\nTest plan created in specs/ directory");
-  console.log(`💰 Total cost: $${totalCost.toFixed(4)}`);
+  console.log(`\n💰 Total cost: $${totalCost.toFixed(4)} (${processedMessageIds.size} steps)`);
 }
 
 createTestPlan().catch(console.error);
