@@ -204,12 +204,23 @@ IMPORTANT: The plan must be saved to a markdown file in the specs/ directory usi
         typeof message.error === "object" && message.error !== null &&
         "type" in message.error && message.error.type === "budget_exceeded") {
       console.error("\n⚠️  Budget limit exceeded");
-      break;
+      process.exit(1);
     }
   }
 
-  console.log("\nTest plan created in specs/ directory");
+  // Verify test plan was created
+  if (existsSync("specs") && readdirSync("specs").some(f => f.endsWith(".md") && f !== "README.md")) {
+    console.log("\n✓ Test plan created in specs/ directory");
+  } else {
+    console.error("\n⚠️  No test plan found in specs/ directory");
+    console.log(`\n💰 Total cost: $${totalCost.toFixed(4)} (${processedMessageIds.size} steps)`);
+    process.exit(1);
+  }
+
   console.log(`\n💰 Total cost: $${totalCost.toFixed(4)} (${processedMessageIds.size} steps)`);
 }
 
-createTestPlan().catch(console.error);
+createTestPlan().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

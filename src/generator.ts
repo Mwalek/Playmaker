@@ -135,7 +135,7 @@ Generate the single most important test and stop.`,
         typeof message.error === "object" && message.error !== null &&
         "type" in message.error && message.error.type === "budget_exceeded") {
       console.error("\n⚠️  Budget limit exceeded");
-      break;
+      process.exit(1);
     }
 
     if (message.type === "assistant" && message.message) {
@@ -152,10 +152,15 @@ Generate the single most important test and stop.`,
   if (existsSync("e2e") && readdirSync("e2e").some(f => f.endsWith(".spec.ts"))) {
     console.log("\n✓ Test generated in e2e/ directory");
   } else {
-    console.log("\n⚠️  No test file found in e2e/ directory");
+    console.error("\n⚠️  No test file found in e2e/ directory");
+    console.log(`\n💰 Total cost: $${totalCost.toFixed(4)} (${processedMessageIds.size} steps)`);
+    process.exit(1);
   }
 
   console.log(`\n💰 Total cost: $${totalCost.toFixed(4)} (${processedMessageIds.size} steps)`);
 }
 
-generateTest().catch(console.error);
+generateTest().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
