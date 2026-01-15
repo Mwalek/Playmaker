@@ -29,11 +29,9 @@ export async function trackQuery(
 
   for await (const message of queryStream) {
     // Capture final result with authoritative total cost
-    if (message.type === "result" && "usage" in message && message.usage) {
-      const usage = message.usage as any;
-      if (usage.total_cost_usd !== undefined) {
-        totalCost = usage.total_cost_usd;
-      }
+    // Per SDK docs: total_cost_usd is a direct property on SDKResultMessage
+    if (message.type === "result" && "total_cost_usd" in message) {
+      totalCost = message.total_cost_usd as number;
     }
 
     // Debug: Log assistant message activity
