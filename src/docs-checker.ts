@@ -142,7 +142,7 @@ Respond ONLY with JSON (no markdown, no explanation):
 {"hasRelevantChanges": true/false, "summary": "Brief description of documentation-relevant changes only", "reason": "Why these changes do/don't need documentation review"}`;
 
   const response = await client.messages.create({
-    model: "claude-haiku-4-20250414",
+    model: "claude-3-5-haiku-latest",
     max_tokens: 500,
     messages: [{ role: "user", content: prompt }],
   });
