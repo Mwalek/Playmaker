@@ -5,11 +5,13 @@
   "type": "module",
   "bin": {
     "playmaker": "./bin/playmaker.js",
-    "playmaker-generate": "./bin/playmaker-generate.js"
+    "playmaker-generate": "./bin/playmaker-generate.js",
+    "playmaker-docs-check": "./bin/playmaker-docs-check.js"
   },
   "scripts": {
     "plan": "tsx src/planner.ts",
-    "generate": "tsx src/generator.ts"
+    "generate": "tsx src/generator.ts",
+    "docs-check": "tsx src/docs-checker.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.14",
