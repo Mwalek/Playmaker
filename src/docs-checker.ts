@@ -1,3 +1,4 @@
+import Anthropic from "@anthropic-ai/sdk";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { execSync } from "child_process";
 import { existsSync, readFileSync, writeFileSync } from "fs";
@@ -110,7 +111,6 @@ function getPRInfo(): PRInfo | null {
  */
 async function filterRelevantChanges(prInfo: PRInfo): Promise<FilteredChanges> {
   // Use direct Anthropic SDK for simple one-shot prompt (no tools needed)
-  const Anthropic = (await import("@anthropic-ai/sdk")).default;
   const client = new Anthropic();
 
   const prompt = `Analyze this PR and identify ONLY the changes that might need documentation updates.
