@@ -210,7 +210,9 @@ async function checkDocs(): Promise<void> {
     ? docsBotResponse.sources.map((s) => `- [${s.title}](${s.url})`).join("\n")
     : "No specific documentation sources found.";
 
+  const reportPath = `${process.cwd()}/docs-report.md`;
   console.log("\nAnalyzing documentation needs with Claude...\n");
+  console.log(`Report will be saved to: ${reportPath}\n`);
 
   // Query Claude with embedded prompt
   const q = query({
@@ -230,17 +232,25 @@ Analyze the changes and create a report. Your report MUST include:
 2. **Update Assessment**: Whether existing docs need updates based on the changes
 3. **Recommendations**: Specific recommendations for documentation (can be "no changes needed" if appropriate)
 
-IMPORTANT: Save your report to docs-report.md using the Write tool. The report should be well-formatted markdown.`,
+CRITICAL: You MUST save your report using the Write tool to this exact absolute path: ${reportPath}
+The report should be well-formatted markdown.`,
     options: {
       maxTurns: 20,
       cwd: process.cwd(),
       model: "haiku",
       maxBudgetUsd: parseFloat(process.env.PLAYMAKER_MAX_BUDGET || "1.0"),
       allowedTools: [
-        "Read",
-        "Write",
+        "Task",
+        "Bash",
         "Glob",
         "Grep",
+        "Read",
+        "Edit",
+        "MultiEdit",
+        "Write",
+        "WebFetch",
+        "WebSearch",
+        "TodoWrite",
       ],
     },
   });
