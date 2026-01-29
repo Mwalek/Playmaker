@@ -1,0 +1,44 @@
+# Example workflow for playmaker-docs-check
+# Copy this to your repo's .github/workflows/ directory
+
+name: Playmaker - Docs Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check Documentation Needs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DOCSBOT_API_KEY: ${{ secrets.DOCSBOT_API_KEY }}
+          DOCSBOT_TEAM_ID: ${{ secrets.DOCSBOT_TEAM_ID }}
+          DOCSBOT_BOT_ID: ${{ secrets.DOCSBOT_BOT_ID }}
+          # Optional: Increase budget for larger PRs (default: $1.00)
+          # PLAYMAKER_MAX_BUDGET: "2.0"
+        run: npx --yes github:Mwalek/Playmaker/playmaker-docs-check
+
+      - name: Upload docs report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: docs-report-${{ github.event.pull_request.number }}
+          path: docs-report.md
+
+# Required secrets:
+# - ANTHROPIC_API_KEY: Claude API key
+# - DOCSBOT_API_KEY: DocsBot API key
+# - DOCSBOT_TEAM_ID: DocsBot team ID
+# - DOCSBOT_BOT_ID: DocsBot bot ID

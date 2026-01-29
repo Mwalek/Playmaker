@@ -1,0 +1,45 @@
+# Example workflow for playmaker (test planning)
+# Copy this to your repo's .github/workflows/ directory
+
+name: Playmaker - Plan
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
+        run: |
+          mkdir -p ~/playmaker-env && cd ~/playmaker-env
+          npm init -y
+          npm install @playwright/test
+          npx playwright install chromium
+
+      - name: Create Test Plan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Optional: Increase budget for larger PRs (default: $1.00)
+          # PLAYMAKER_MAX_BUDGET: "2.0"
+        run: npx --yes github:Mwalek/Playmaker
+
+      - name: Upload test plan
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-plan-${{ github.event.pull_request.number }}
+          path: specs/
+
+# Required secrets:
+# - ANTHROPIC_API_KEY: Claude API key

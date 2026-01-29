@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "WebSearch",
+      "Bash(gh run view:*)",
+      "WebFetch(domain:docs.github.com)",
+      "Bash(git ls-tree:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:docs.npmjs.com)",
+      "mcp__context7__query-docs",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(wc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run lint:fix:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run format:*)",
+      "WebFetch(domain:docsbot.ai)",
+      "Bash(PLAYMAKER_MOCK=true DOCSBOT_API_KEY=test DOCSBOT_TEAM_ID=test DOCSBOT_BOT_ID=test npm run docs-check:*)",
+      "Bash(PLAYMAKER_MOCK=true npm run docs-check:*)",
+      "Bash(echo:*)"
+    ]
+  }
+}
